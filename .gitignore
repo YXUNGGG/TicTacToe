@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# templates
+others
+
 # After Effects templates
 ae
 *.aep
