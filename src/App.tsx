@@ -37,7 +37,10 @@ const App = () => {
   return (
     <>
       <Board />
-      <div className="background" ref={canvasParentRef}>
+      <div 
+        ref={canvasParentRef}
+        className="background" 
+      >
         <canvas ref={bgCanvasRef} />
       </div>
     </>

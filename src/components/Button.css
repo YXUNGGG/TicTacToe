@@ -1,0 +1,90 @@
+.button {
+  font-family: "Fredoka", sans-serif;
+  width: 100%;
+  flex: 1;
+  color: white;
+  border: 3px solid;
+  border-radius: 1rem;
+  cursor: pointer;
+}
+
+.button.medium {
+  --height: 96px;
+  --font-size: 44px;
+  --shadow-size: 10px;
+  --margin-block: 0 10px;
+}
+
+.button.small {
+  --height: 70px;
+  --font-size: 32px;
+  --shadow-size: 8px;
+  --margin-block: 0 8px;
+}
+
+.button.red {
+  --bg-color: #ED2E0C;
+  --border-color: #F35244;
+  --shadow-color: #CA1B0B;
+}
+
+.button.blue {
+  --bg-color: #0C8EED;
+  --border-color: #339EED;
+  --shadow-color: #0E74BF;
+}
+
+.button.green {
+  --bg-color: #64BC68;
+  --border-color: #78C77C;
+  --shadow-color: #59A65D;
+}
+
+.button.small,
+.button.medium {
+  height: var(--height);
+  font-size: var(--font-size);
+  margin-block: var(--margin-block);
+}
+
+.button.red,
+.button.blue,
+.button.green {
+  background-color: var(--bg-color);
+  border-color: var(--border-color);
+  box-shadow: 0px var(--shadow-size) 0 var(--shadow-color);
+}
+
+.button.green.selected {
+  color: #4B884E;
+  background-color: #64B168;
+  border-color: #74C078;
+  cursor: default;
+}
+
+.button.green.medium.selected {
+  box-shadow: 0px 8px 0 #4D8B50 !important;
+}
+
+.button.green.small.selected {
+  box-shadow: 0px 6px 0 #4D8B50 !important;
+  margin-block: 2px 6px;
+}
+
+.button.red:active,
+.button.blue:active,
+.button.green:active {
+  --shadow-size: 8px;
+}
+
+.button.medium:active {
+  margin-block: 2px 8px;
+}
+
+.button.small:active {
+  margin-block: 3px 5px;
+}
+
+.button.green.small:active {
+  box-shadow: 0px 5px 0 #59A65D;
+}

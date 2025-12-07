@@ -1,14 +1,16 @@
 import React, { useContext } from 'react';
 import './Cell.css'
-import { EngineCtx } from './Board';
+import { EngineCtx } from './BoardField';
+import { secondPlayerType } from './Board';
 
 type OwnProps = {
   id: number;
   isLocked?: boolean;
+  secondPlayer: secondPlayerType;
 }
 
-const Cell: React.FC<OwnProps> = ({ isLocked, id }) => {
-  const {EngineInstance} = useContext(EngineCtx);
+const Cell: React.FC<OwnProps> = ({ isLocked, id, secondPlayer }) => {
+  const { EngineInstance } = useContext(EngineCtx);
 
   const handlePasteFigure = () => {
     if (isLocked || !EngineInstance) return;
@@ -18,18 +20,21 @@ const Cell: React.FC<OwnProps> = ({ isLocked, id }) => {
     ) return;
     
     EngineInstance.setNewStep(id);
-  };
+  }
 
   return (
     <div
-      style={
-        EngineInstance?.currentTurn === EngineInstance?.secondPlayerSymbol
-        || isLocked ? {pointerEvents: 'none'} : {}}
-      onMouseEnter={() => EngineInstance!.handleCellHover(id)}
-      onMouseLeave={() => EngineInstance!.handleCellLeave(id)}
       className="cell"
       onClick={handlePasteFigure}
-    ></div>
+      onMouseEnter={() => EngineInstance!.handleCellHover(id)}
+      onMouseLeave={() => EngineInstance!.handleCellLeave(id)}
+      style={
+        (EngineInstance?.currentTurn === EngineInstance?.secondPlayerSymbol 
+        && secondPlayer === "bot") || isLocked 
+        ? {pointerEvents: 'none'} 
+        : {}
+      }
+    />
   );
 }
 

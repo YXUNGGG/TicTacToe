@@ -1,95 +1,57 @@
-import { createContext, useEffect, useRef, useState } from 'react';
-import './Board.css'
-import Cell from './Cell';
-import { GameController } from '../engine';
-import { EngineCtxType } from '../types/GameContext';
-import { drawWinLine, renderSymbol } from '../utils/drawFunctions';
-import { checkBoardState } from '../utils/utils';
-import { BoardType } from '../models/Player';
+import { useEffect, useState } from "react";
+import BoardMenu from "./BoardMenu";
+import BoardField from "./BoardField";
 
-export const EngineCtx = createContext<EngineCtxType>({
-  EngineInstance: null
-});
+import "./Board.css";
+
+type gameStageType = "" | "started" | "ended";
+export type secondPlayerType = "bot" | "player";
 
 const Board = () => {
-  const EngineRef = useRef<GameController>(null);
-
-  const boardRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [cells, setCells] = useState<BoardType>([]);
-  const [isLocked, setIsLocked] = useState(false);
+  const [gameStage, setGameStage] = useState<gameStageType>("");
+  const [isInterfaceBlocked, setIsInterfaceBlocked] = useState(false);
+  const [secondPlayer, setSecondPlayer] = useState<secondPlayerType>("bot");
 
   useEffect(() => {
-    if (!canvasRef.current || !boardRef.current || EngineRef.current) return;
-
-    EngineRef.current = new GameController(canvasRef.current, boardRef.current);
-
-    const EngineInstance = EngineRef.current;
-    if (!EngineInstance) return;
-    
-    const updateCells = () => setCells([...EngineInstance.board]);
-    const renderVictoryLine = async () => {
-      let winPos = checkBoardState(EngineInstance.board, EngineInstance.currentTurn);
-      await new Promise(resolve => setTimeout(() => resolve(drawWinLine(EngineInstance.context!, winPos)), 200));
+    let timer: number;
+    if (gameStage === "started") {
+      timer = setTimeout(() => setIsInterfaceBlocked(true), 1000);
     }
-    
-    const handleDrawFigure = async () => {
-      if (GameController.emptyIndices(EngineInstance!.board).length > 8) return;
-      setIsLocked(true);
-      await renderSymbol(
-        EngineInstance.context!, 
-        EngineInstance.playingCell!, 
-        EngineInstance.currentTurn,
-        "", false,
-        EngineInstance.secondPlayerSymbol === EngineInstance.currentTurn
-      );
-      setIsLocked(false);
+
+    return () => {
+      clearInterval(timer);
     }
-    
-    EngineInstance.onEvent("updateCells", updateCells);
-    EngineInstance.onEvent("victory", renderVictoryLine);
-    EngineInstance.onEvent("drawFigure", handleDrawFigure);
-    
-    EngineInstance.init();
-  }, []);
+  }, [gameStage]);
 
   return (
-    <EngineCtx.Provider value={
-      {EngineInstance: EngineRef.current}
-    }>
-      <div className="userfield">
-        <div id="board" ref={boardRef}>
-          <canvas ref={canvasRef}/>
-
-          <div 
-            className="separation-line" 
-            style={{right: "33%"}}
-          ></div>
-          <div 
-            className="separation-line" 
-            style={{left: "33%"}}
-          ></div>
-
-          <div 
-            className="separation-line horizontal" 
-            style={{top: "33%"}}
-          ></div>
-          <div 
-            className="separation-line horizontal" 
-            style={{bottom: "33%"}}
-          ></div>
-
-          <div className="cells">
-            {cells.map((_, idx) => <Cell
-              key={idx}
-              id={idx}
-              isLocked={isLocked}
-            />)}
+    <div className="userfield">
+      <div className="scene">
+        <div
+          className={`cube${" " + gameStage}`}
+        >
+          <div className="face front">
+            <BoardMenu
+              setSecondPlayer={setSecondPlayer}
+              setGameStarted={() => setGameStage("started")}
+            />
           </div>
+          <div className="face back">
+            <BoardField 
+              secondPlayer={secondPlayer}
+              isGameStarted={isInterfaceBlocked}
+              setGameStarted={() => setGameStage("ended")}
+            />
+          </div>
+
+          <div className="face side front" style={{transform: "translateZ(17px)"}} />
+          <div className="face side back" style={{transform: "translateZ(-17px)"}} />
+          <div className="face side center-left" style={{ width: "36px"}} />
+          <div className="face side center-right" style={{ width: "36px" }} />
+          <div className="face side left" style={{ width: "36px"}} />
+          <div className="face side right" style={{width: "36px"}} />
         </div>
       </div>
-    </EngineCtx.Provider>
+    </div>
   );
 }
 

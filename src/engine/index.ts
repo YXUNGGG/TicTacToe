@@ -46,7 +46,7 @@ export class GameController {
       ? new Ai(this.secondPlayerSymbol)
       : new Player(secondPlayer, false);
 
-      window.addEventListener("resize", () => this.handleResize);
+    window.addEventListener("resize", () => this.handleResize);
   }
 
   static emptyIndices(board: BoardType) {
@@ -86,9 +86,7 @@ export class GameController {
     this.context!.clearRect(offsetX, offsetY, tileRect.width, tileRect.height);
   }
 
-  public init() {
-    console.log("init");
-    
+  public init() {    
     this.emit("updateCells");
     console.log(this.secondPlayerSymbol);
     this.nextTurn();
@@ -174,7 +172,7 @@ export class GameController {
   }
 
   private handleDraw() {
-    this.gameStatus = "DRAW NIGA!";
+    this.gameStatus = "Draw!";
     alert(this.gameStatus);
   }
 

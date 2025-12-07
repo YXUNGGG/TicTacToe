@@ -1,0 +1,45 @@
+.game-widget-block {
+  font-family: "Fredoka", sans-serif;
+  font-size: 2rem;
+  color: white;
+  text-shadow: 2px 2px 0 #404040;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  position: absolute;
+  top: -100px;
+  cursor: default;
+  transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+}
+
+.game-widget-block.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.first-player-score,
+.second-player-score {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.first-player-score div,
+.second-player-score div {
+  height: 50%;
+}
+
+.first-player-score {
+  border-right: 1px solid #88CDFF;
+}
+
+.second-player-score {
+  border-left: 1px solid #88CDFF;
+}
+
+.action-widget {
+  flex: 3;
+  height: 100%;
+}

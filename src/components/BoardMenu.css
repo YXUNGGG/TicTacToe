@@ -1,0 +1,17 @@
+.menu {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem 2.5rem;
+}
+
+.button-group {
+  width: 100%;
+}
+
+.button-row {
+  width: 100%;
+  margin-top: 10px;
+  display: flex;
+  gap: 16px;
+}
