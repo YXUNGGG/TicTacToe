@@ -7,6 +7,11 @@ export const createUniqueId = () => ++randomId;
 
 export const chance = (float: number) => Math.random() <= float;
 export const getRandom = (min: number, max: number) => Math.trunc(Math.random() * (max - min) + min);
+/**
+ * Returns a random element from an array
+ * @param arr
+ */
+export const getRandomElement = (arr: any[]) => arr[getRandom(0, arr.length)];
 
 export const getImage = (img: string) => {
   const image = new Image();

@@ -1,4 +1,3 @@
-import { EngineCtx } from "../components/Board";
 import { Wins_positins } from "../engine";
 import { symbolType } from "../types/GameContext";
 
@@ -63,8 +62,8 @@ const drawCircle = (
 
   const drawGrayCircle = () => {
     ctx.beginPath();
-    ctx.strokeStyle = "#cecece"; // Цвет серого круга
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); // Полный круг
+    ctx.strokeStyle = "#cecece"; // circle color
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); // full circle
     ctx.stroke();
   };
 
@@ -81,9 +80,9 @@ const drawCircle = (
       ctx.arc(centerX, centerY, radius, Math.PI / 2, angle * (Math.PI / 2));
       ctx.stroke();
 
-      if (angle >= 6) return resolve();
+      if (angle >= 5) return resolve();
 
-      requestAnimationFrame(() => animate(angle + 0.18));
+      requestAnimationFrame(() => animate(angle + 0.2));
     }
 
     animate(instantly ? 6 : 1);
@@ -107,8 +106,8 @@ const drawCross = async (
   const EndY = offsetY + tileRect.height - cellPadding - 5;
 
   const drawGrayCross = () => {
-    drawLine(ctx, startX, startY, EndX, EndY, 0.13, true);
-    drawLine(ctx, EndX, startY, startX, EndY, 0.13, true);
+    drawLine(ctx, startX, startY, EndX, EndY, true);
+    drawLine(ctx, EndX, startY, startX, EndY, true);
   }
   if (!instantly && !isBot) {
     ctx.strokeStyle = "#cecece";
@@ -116,8 +115,8 @@ const drawCross = async (
     ctx.strokeStyle = Colors[0];
   }
 
-  await drawLine(ctx, startX, startY, EndX, EndY, 0.13, instantly);
-  await drawLine(ctx, EndX, startY, startX, EndY, 0.13, instantly);
+  await drawLine(ctx, startX, startY, EndX, EndY, instantly, 0.12);
+  await drawLine(ctx, EndX, startY, startX, EndY, instantly, 0.12);
   return;
 }
 
@@ -127,8 +126,8 @@ const drawLine = (
   starty: number, 
   endx: number, 
   endy: number,
-  speed: number = 0.13,
-  instantly: boolean
+  instantly: boolean,
+  speed: number = 0.12,
 ) => {
   return new Promise<void>(resolve => {
     const animate = (counterProgress: number) => {
@@ -145,7 +144,7 @@ const drawLine = (
   });
 }
 
-export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) => {   // проблемы с адаптивностью
+export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) => {   // issues with adapt.
   const [startPos, , endPos] = arr;
 
   let direction: "horizontal" | "vertical" | "diagonal" | "diagonal-inverted";
@@ -195,5 +194,5 @@ export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) 
   ctx.lineWidth = 10;
   ctx.strokeStyle = "#313131";
 
-  await drawLine(ctx, startX, startY, endX, endY, 0.08, false);
+  await drawLine(ctx, startX, startY, endX, endY, false, 0.08);
 }

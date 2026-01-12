@@ -5,12 +5,17 @@ import BoardField from "./BoardField";
 import "./Board.css";
 
 type gameStageType = "" | "started" | "ended";
-export type secondPlayerType = "bot" | "player";
+
+export type secondPlayerType = "bot" | "P2";
+export type botDifficultsType = "easy" | "medium" | "hard";
 
 const Board = () => {
   const [gameStage, setGameStage] = useState<gameStageType>("");
   const [isInterfaceBlocked, setIsInterfaceBlocked] = useState(false);
   const [secondPlayer, setSecondPlayer] = useState<secondPlayerType>("bot");
+
+  const [gamesCount, setGamesCount] = useState(5);
+  const [botDifficult, setBotDifficult] = useState<botDifficultsType>("easy");
 
   useEffect(() => {
     let timer: number;
@@ -18,10 +23,13 @@ const Board = () => {
       timer = setTimeout(() => setIsInterfaceBlocked(true), 1000);
     }
 
-    return () => {
-      clearInterval(timer);
-    }
+    return () => clearInterval(timer);
   }, [gameStage]);
+
+  const finishGame = () => setTimeout(() => {
+    setIsInterfaceBlocked(false);
+    setTimeout(() => setGameStage("ended"), 250);
+  }, 1000);
 
   return (
     <div className="userfield">
@@ -31,15 +39,20 @@ const Board = () => {
         >
           <div className="face front">
             <BoardMenu
+              gamesCount={gamesCount}
+              botDifficult={botDifficult}
+              setGamesCount={setGamesCount}
+              setBotDifficult={setBotDifficult}
               setSecondPlayer={setSecondPlayer}
               setGameStarted={() => setGameStage("started")}
             />
           </div>
           <div className="face back">
             <BoardField 
-              secondPlayer={secondPlayer}
+              finishGame={finishGame}
               isGameStarted={isInterfaceBlocked}
-              setGameStarted={() => setGameStage("ended")}
+              botDifficult={secondPlayer === "bot" ? botDifficult : undefined}
+              maxGames={secondPlayer === "bot" ? 5 : gamesCount}
             />
           </div>
 

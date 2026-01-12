@@ -2,29 +2,27 @@ import Button from "./Button";
 
 import "./Board.css";
 import "./BoardMenu.css";
-import { useState } from "react";
+import { botDifficultsType } from "./Board";
 
 type OwnProps = {
-  setSecondPlayer: React.Dispatch<React.SetStateAction<"bot" | "player">>;
+  gamesCount: number;
+  botDifficult: botDifficultsType;
   setGameStarted: () => void;
+  setGamesCount: React.Dispatch<React.SetStateAction<number>>;
+  setSecondPlayer: React.Dispatch<React.SetStateAction<"bot" | "P2">>;
+  setBotDifficult: React.Dispatch<React.SetStateAction<botDifficultsType>>;
 }
 
-const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
-  const [botDifficult, setBotDifficult] = useState({
-    easy: true,
-    mid: false,
-    hard: false
-  });
-
-  const [gamesCount, setGamesCount] = useState({
-    bo3: false,
-    bo5: true,
-    bo7: false,
-    bo9: false,
-  });
-
+const BoardMenu = ({ 
+  gamesCount,
+  botDifficult,
+  setGameStarted,
+  setSecondPlayer,
+  setGamesCount,
+  setBotDifficult
+}: OwnProps) => {
   return (
-    <div id="board" className="menu">
+  <div id="board" className="menu">
       <h2>Select a game mode</h2>
       <div className="button-group" style={{marginTop: "2rem"}}>
         <Button 
@@ -32,48 +30,23 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
           onClick={() => {
             setSecondPlayer("bot");
             setGameStarted();
-          }}>
-            Player vs Bot
-          </Button>
+          }}
+        >
+          You vs Bot from Zoo
+        </Button>
+
         <div className="button-row">
-          <Button 
-            color="green"
-            size="small" 
-            isSelected={botDifficult.easy}
-            onClick={() => setBotDifficult({
-              easy: true,
-              mid: false,
-              hard: false
-            })}
-          >
-            easy
-          </Button>
-
-          <Button 
-            color="green" 
-            size="small"
-            isSelected={botDifficult.mid}
-            onClick={() => setBotDifficult({
-              easy: false,
-              mid: true,
-              hard: false
-            })}
-          >
-            medium
-          </Button>
-
-          <Button
-            color="green" 
-            size="small"
-            isSelected={botDifficult.hard}
-            onClick={() => setBotDifficult({
-              easy: false,
-              mid: false,
-              hard: true
-            })}
-          >
-            hard
-          </Button>
+          {["easy", "medium", "hard"].map((preset, idx) =>
+            <Button 
+              key={idx}
+              size="small"
+              color="green"
+              isSelected={botDifficult === preset}
+              onClick={() => setBotDifficult(preset as botDifficultsType)}
+            >
+              {preset}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -81,8 +54,8 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
         <Button 
           color="blue"
           onClick={() => {
-          setSecondPlayer("player");
-          setGameStarted();
+            setSecondPlayer("P2");
+            setGameStarted();
           }}
         >
           Player vs Player
@@ -92,13 +65,8 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
           <Button 
             color="green" 
             size="small" 
-            isSelected={gamesCount.bo3}
-            onClick={() => setGamesCount({
-              bo3: true,
-              bo5: false,
-              bo7: false,
-              bo9: false
-            })}
+            isSelected={gamesCount === 3}
+            onClick={() => setGamesCount(3)}
           >
             bo3
           </Button>
@@ -106,13 +74,8 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
           <Button 
             size="small"
             color="green"
-            isSelected={gamesCount.bo5}
-            onClick={() => setGamesCount({
-              bo3: false,
-              bo5: true,
-              bo7: false,
-              bo9: false
-            })}
+            isSelected={gamesCount === 5}
+            onClick={() => setGamesCount(5)}
           >
             bo5
           </Button>
@@ -120,13 +83,8 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
           <Button 
             size="small"
             color="green"
-            isSelected={gamesCount.bo7}
-            onClick={() => setGamesCount({
-              bo3: false,
-              bo5: false,
-              bo7: true,
-              bo9: false
-            })}
+            isSelected={gamesCount === 7}
+            onClick={() => setGamesCount(7)}
           >
             bo7
           </Button>
@@ -134,19 +92,14 @@ const BoardMenu = ({ setGameStarted, setSecondPlayer }: OwnProps) => {
           <Button 
             size="small"
             color="green"
-            isSelected={gamesCount.bo9}
-            onClick={() => setGamesCount({
-              bo3: false,
-              bo5: false,
-              bo7: false,
-              bo9: true
-            })}
+            isSelected={gamesCount === 9}
+            onClick={() => setGamesCount(9)}
           >
             bo9
           </Button>
         </div>
       </div>
-    </div>
+  </div>
   );
 }
 

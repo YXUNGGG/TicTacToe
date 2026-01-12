@@ -1,4 +1,4 @@
-import { Ai, BoardType, Player } from "../models/Player";
+import { Ai, BoardType, BotPresets, Player } from "../models/Player";
 import { symbolType } from "../types/GameContext";
 import { getCanvasPosition, renderSymbol } from "../utils/drawFunctions";
 import { checkBoardState, getRandom } from "../utils/utils";
@@ -16,7 +16,7 @@ export const Wins_positins = [
 
 export class GameController {
   private canvas;
-  private callbacks = new Map<string, (() => any)[]>();
+  private callbacks = new Map<string, (() => unknown)[]>();
   public secondPlayerSymbol: symbolType = getRandom(0, 2) ? "X" : "O";
 
   public context;
@@ -25,13 +25,13 @@ export class GameController {
 
   public playingCell: number | null = null; 
   public movesCount = 0;
-  public gameStatus = "running";
+  public gameStatus: "running" | "draw" | string = "running";
   public currentTurn: symbolType = "O";
 
   public playerOne: Player;
   public playerTwo: Player | Ai;
 
-  constructor(canvasElem: HTMLCanvasElement, boardElement: HTMLDivElement, firstPlayerName = "Player 1", secondPlayer = "bot") {
+  constructor(canvasElem: HTMLCanvasElement, boardElement: HTMLDivElement, botDifficult: BotPresets | undefined) {
     this.parent = boardElement;
     const {clientHeight, clientWidth} = this.parent;
     this.canvas = canvasElem;
@@ -41,10 +41,10 @@ export class GameController {
     this.context = this.canvas.getContext("2d"); 
     this.board = new Array(9).fill(0).map((_, i) => i);
 
-    this.playerOne = new Player(firstPlayerName, false);
-    this.playerTwo = secondPlayer === "bot" 
-      ? new Ai(this.secondPlayerSymbol)
-      : new Player(secondPlayer, false);
+    this.playerOne = new Player("P1");
+    this.playerTwo = botDifficult 
+      ? new Ai(this.secondPlayerSymbol, botDifficult)
+      : new Player("P2");
 
     window.addEventListener("resize", () => this.handleResize);
   }
@@ -86,10 +86,19 @@ export class GameController {
     this.context!.clearRect(offsetX, offsetY, tileRect.width, tileRect.height);
   }
 
-  public init() {    
+  public init() {
     this.emit("updateCells");
-    console.log(this.secondPlayerSymbol);
     this.nextTurn();
+  }
+
+  public reset() {
+    this.movesCount = 0;
+    this.currentTurn = "O";
+    this.gameStatus = "running";
+    this.board = new Array(9).fill(0).map((_, i) => i);
+    this.secondPlayerSymbol = this.secondPlayerSymbol === "X" ? "O" : "X";
+    
+    this.context!.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   public onEvent(event: string, callback: () => void) {  
@@ -143,27 +152,27 @@ export class GameController {
   }
 
   private async handleBotStep() {
-    const botTinkingDelay = getRandom(300, 1200);
+    const botTinkingDelay = getRandom(400, 1200);
 
     return new Promise<number>(resolve => {
         setTimeout(() => {
           if (!(this.playerTwo instanceof Ai)) return;
           if (this.movesCount === 0) {
-            const aiStepId = getRandom(0, 10)    // первый ход рандом от 0 до 9(последнее число не включается)
+            const aiStepId = getRandom(0, 10)    // first step is between 0 and 9 (last not included)
             resolve(aiStepId);
           } else {
-            const aiStepId = this.playerTwo.AiTurnByLevel(this.board, this.playerTwo.preset);
+            const aiStepId = this.playerTwo.AiTurnByLevel(this.board);
             resolve(aiStepId);
           }
         }, botTinkingDelay);
     });
     // return new Promise(resolve => {
-      //   setTimeout(() => {
-      //     aiStepId = this.playerTwo.AiTurnByLevel(this.board, this.playerTwo.preset);
-      //     resolve(this.setNewStep(aiStepId));
-      //   });
-      // });
-      // this.setNewStep(aiStepId);
+    //   setTimeout(() => {
+    //     aiStepId = this.playerTwo.AiTurnByLevel(this.board, this.playerTwo.preset);
+    //     resolve(this.setNewStep(aiStepId));
+    //   });
+    // });
+    // this.setNewStep(aiStepId);
   }
 
   private async handleVictory(winnerName: string) {
@@ -172,8 +181,7 @@ export class GameController {
   }
 
   private handleDraw() {
-    this.gameStatus = "Draw!";
-    alert(this.gameStatus);
+    this.gameStatus = "draw";
   }
 
   private updateBoardCell(id: number) {
@@ -193,7 +201,7 @@ export class GameController {
 
     // this.emit("updateCells");
     await this.emit("drawFigure");
-
+  
     const isWin = checkBoardState(this.board, this.currentTurn);
 
     if (!isWin.length && !GameController.emptyIndices(this.board).length) {

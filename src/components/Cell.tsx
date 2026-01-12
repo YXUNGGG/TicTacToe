@@ -30,7 +30,7 @@ const Cell: React.FC<OwnProps> = ({ isLocked, id, secondPlayer }) => {
       onMouseLeave={() => EngineInstance!.handleCellLeave(id)}
       style={
         (EngineInstance?.currentTurn === EngineInstance?.secondPlayerSymbol 
-        && secondPlayer === "bot") || isLocked 
+        && secondPlayer === "bot") || isLocked || EngineInstance?.gameStatus !== "running"
         ? {pointerEvents: 'none'} 
         : {}
       }

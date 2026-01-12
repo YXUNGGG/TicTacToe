@@ -74,17 +74,17 @@
 .button.red:active,
 .button.blue:active,
 .button.green:active {
-  --shadow-size: 8px;
+  --shadow-size: 6px;
 }
 
 .button.medium:active {
-  margin-block: 2px 8px;
+  margin-block: 4px 6px;
 }
 
 .button.small:active {
-  margin-block: 3px 5px;
+  margin-block: 4px 4px;
 }
 
 .button.green.small:active {
-  box-shadow: 0px 5px 0 #59A65D;
+  box-shadow: 0px 4px 0 #59A65D;
 }

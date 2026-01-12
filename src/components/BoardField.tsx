@@ -4,26 +4,24 @@ import { GameController } from '../engine';
 import { EngineCtxType } from '../types/GameContext';
 import { drawWinLine, renderSymbol } from '../utils/drawFunctions';
 import { checkBoardState } from '../utils/utils';
-import { BoardType } from '../models/Player';
+import { BoardType, BotPresets } from '../models/Player';
 
 import './Board.css';
 import './BoardField.css';
 import GameWidget from './GameWidget';
-import { secondPlayerType } from './Board';
 
 export const EngineCtx = createContext<EngineCtxType>({
   EngineInstance: null
 });
 
 type OwnProps = {
-  secondPlayer: secondPlayerType;
+  maxGames: number;
   isGameStarted: boolean;
-  setGameStarted: () => void;
+  botDifficult?: BotPresets;
+  finishGame: () => void;
 }
 
-//TODO: lock cells after game ends
-
-const BoardField: React.FC<OwnProps> = ({ isGameStarted, secondPlayer }) => {
+const BoardField: React.FC<OwnProps> = ({ isGameStarted, maxGames, botDifficult, finishGame }) => {
   const EngineRef = useRef<GameController>(null);
 
   const boardRef = useRef<HTMLDivElement>(null);
@@ -32,16 +30,24 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, secondPlayer }) => {
   const [cells, setCells] = useState<BoardType>([]);
   const [isLocked, setIsLocked] = useState(false);
 
+  const [playersPoints, setPlayerPoints] = useState({
+    P1: 0,
+    P2: 0
+  });
+
+  const secondPlayer = botDifficult ? "bot" : "P2";
+
   useEffect(() => {
     if (!isGameStarted) return;
     if (!canvasRef.current || !boardRef.current || EngineRef.current) return;
 
-    EngineRef.current = new GameController(canvasRef.current, boardRef.current, "p1", secondPlayer);
+    EngineRef.current = new GameController(canvasRef.current, boardRef.current, botDifficult);
 
     const EngineInstance = EngineRef.current;
     if (!EngineInstance) return;
-    
+
     const updateCells = () => setCells([...EngineInstance.board]);
+    
     const renderVictoryLine = async () => {
       const winPos = checkBoardState(EngineInstance.board, EngineInstance.currentTurn);
       await new Promise(resolve => setTimeout(() => resolve(drawWinLine(EngineInstance.context!, winPos)), 200));
@@ -57,6 +63,7 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, secondPlayer }) => {
         EngineInstance.currentTurn,
         "", false,
         EngineInstance.secondPlayerSymbol === EngineInstance.currentTurn
+        && secondPlayer === "bot"
       );
       setIsLocked(false);
     }
@@ -66,6 +73,21 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, secondPlayer }) => {
     EngineInstance.onEvent("drawFigure", handleDrawFigure);
     
     EngineInstance.init();
+    
+    return () => {
+      setTimeout(() => {
+        EngineInstance.offEvent("updateCells", "updateCells");
+        EngineInstance.offEvent("victory", "renderVictoryLine");
+        EngineInstance.offEvent("drawFigure", "handleDrawFigure");
+        EngineInstance.reset();
+        EngineInstance.currentTurn = "X";
+
+        setPlayerPoints({
+          P1: 0,
+          P2: 0
+        });
+      }, 1250);
+    }
   }, [isGameStarted]);
 
   return (
@@ -73,29 +95,33 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, secondPlayer }) => {
       { EngineInstance: EngineRef.current }
     }>
       <GameWidget 
-        isVisible={isGameStarted} 
-        isGameWithBot={secondPlayer === "bot"} 
+        maxGames={maxGames}
+        finishGame={finishGame}
+        isVisible={isGameStarted}
+        playerPoints={playersPoints}
+        setPlayerPoints={setPlayerPoints}
       />
+
       <div id="board" ref={boardRef}>
         <canvas ref={canvasRef}/>
 
         <div 
           className="separation-line" 
           style={{right: "33%"}}
-        ></div>
+        />
         <div 
           className="separation-line" 
           style={{left: "33%"}}
-        ></div>
+        />
 
         <div 
           className="separation-line horizontal" 
           style={{top: "33%"}}
-        ></div>
+        />
         <div 
           className="separation-line horizontal" 
           style={{bottom: "33%"}}
-        ></div>
+        />
 
         <div className="cells">
           {cells.map((_, idx) => <Cell
