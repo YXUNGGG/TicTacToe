@@ -85,7 +85,7 @@ const drawCircle = (
       requestAnimationFrame(() => animate(angle + 0.2));
     }
 
-    animate(instantly ? 6 : 1);
+    animate(instantly ? 8 : 1);
   })
 }
 
@@ -99,12 +99,12 @@ const drawCross = async (
 
   //ctx.clearRect(offsetX, offsetY, tileRect.width, tileRect.height);
 
-  const startX = offsetX + cellPadding + 5;
-  const startY = offsetY + cellPadding + 5;
+  const startX = offsetX + cellPadding;
+  const startY = offsetY + cellPadding;
 
-  const EndX = offsetX + tileRect.width - cellPadding - 5;
-  const EndY = offsetY + tileRect.height - cellPadding - 5;
-
+  const EndX = offsetX + tileRect.width - cellPadding;
+  const EndY = offsetY + tileRect.height - cellPadding;
+  
   const drawGrayCross = () => {
     drawLine(ctx, startX, startY, EndX, EndY, true);
     drawLine(ctx, EndX, startY, startX, EndY, true);
@@ -115,8 +115,8 @@ const drawCross = async (
     ctx.strokeStyle = Colors[0];
   }
 
-  await drawLine(ctx, startX, startY, EndX, EndY, instantly, 0.12);
-  await drawLine(ctx, EndX, startY, startX, EndY, instantly, 0.12);
+  await drawLine(ctx, startX, startY, EndX, EndY, instantly, 0.1);
+  await drawLine(ctx, EndX, startY, startX, EndY, instantly, 0.1);
   return;
 }
 
@@ -127,7 +127,7 @@ const drawLine = (
   endx: number, 
   endy: number,
   instantly: boolean,
-  speed: number = 0.12,
+  speed: number = 0.1,
 ) => {
   return new Promise<void>(resolve => {
     const animate = (counterProgress: number) => {
@@ -136,8 +136,7 @@ const drawLine = (
       ctx.lineTo(endx - (endx - startx) * counterProgress, endy - (endy - starty) * counterProgress);
       ctx.stroke();
 
-      if (counterProgress <= 0) return resolve();
-
+      if (counterProgress <= 0.1) return resolve();
       requestAnimationFrame(() => animate(counterProgress - speed));
     }
     animate(instantly ? 0 : 1);
@@ -169,30 +168,30 @@ export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) 
     case "horizontal":
       startX = startOffsetX + cellPadding / 2;
       startY = startCenterY;
-      endX = endOffsetX + endRect.width - cellPadding;
+      endX = endOffsetX + endRect.width + cellPadding;
       endY = endCenterY;
       break;
     case "vertical":
       startX = startCenterX;
       startY = startOffsetY + cellPadding / 2;
       endX = endCenterX;
-      endY = endOffsetY + endRect.height - cellPadding;
+      endY = endOffsetY + endRect.height + cellPadding;
       break;
     case "diagonal":
-      startX = startOffsetX + cellPadding / 1.2;
-      startY = startOffsetY + cellPadding / 1.2;
-      endX = endOffsetX + endRect.width - cellPadding * 1.2;
-      endY = endOffsetY + endRect.height - cellPadding * 1.2;
+      startX = startOffsetX + cellPadding / 2;
+      startY = startOffsetY + cellPadding / 2;
+      endX = endOffsetX + endRect.width + cellPadding;
+      endY = endOffsetY + endRect.height + cellPadding;
       break;
     case "diagonal-inverted":
-      startX = startOffsetX + startRect.width - cellPadding / 1.2;
-      startY = startOffsetY + cellPadding / 1.2;
-      endX = endOffsetX + cellPadding * 1.2;
-      endY = endOffsetY + endRect.height - cellPadding * 1.2;
+      startX = startOffsetX + startRect.width - cellPadding / 2;
+      startY = startOffsetY + cellPadding / 2;
+      endX = endOffsetX - cellPadding;
+      endY = endOffsetY + endRect.height + cellPadding;
   }
 
   ctx.lineWidth = 10;
   ctx.strokeStyle = "#313131";
 
-  await drawLine(ctx, startX, startY, endX, endY, false, 0.08);
+  await drawLine(ctx, startX, startY, endX, endY, false, 0.05);
 }

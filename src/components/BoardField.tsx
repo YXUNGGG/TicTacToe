@@ -50,7 +50,7 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, maxGames, botDifficult,
     
     const renderVictoryLine = async () => {
       const winPos = checkBoardState(EngineInstance.board, EngineInstance.currentTurn);
-      await new Promise(resolve => setTimeout(() => resolve(drawWinLine(EngineInstance.context!, winPos)), 200));
+      await new Promise(resolve => setTimeout(() => resolve(drawWinLine(EngineInstance.context!, winPos)), 300));
     }
     
     const handleDrawFigure = async () => {
@@ -81,6 +81,8 @@ const BoardField: React.FC<OwnProps> = ({ isGameStarted, maxGames, botDifficult,
         EngineInstance.offEvent("drawFigure", "handleDrawFigure");
         EngineInstance.reset();
         EngineInstance.currentTurn = "X";
+
+        EngineRef.current = null;
 
         setPlayerPoints({
           P1: 0,

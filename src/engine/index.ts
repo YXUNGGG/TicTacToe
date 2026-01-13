@@ -45,7 +45,7 @@ export class GameController {
     this.playerTwo = botDifficult 
       ? new Ai(this.secondPlayerSymbol, botDifficult)
       : new Player("P2");
-
+      
     window.addEventListener("resize", () => this.handleResize);
   }
 
@@ -153,12 +153,12 @@ export class GameController {
 
   private async handleBotStep() {
     const botTinkingDelay = getRandom(400, 1200);
-
     return new Promise<number>(resolve => {
         setTimeout(() => {
           if (!(this.playerTwo instanceof Ai)) return;
           if (this.movesCount === 0) {
             const aiStepId = getRandom(0, 10)    // first step is between 0 and 9 (last not included)
+            
             resolve(aiStepId);
           } else {
             const aiStepId = this.playerTwo.AiTurnByLevel(this.board);

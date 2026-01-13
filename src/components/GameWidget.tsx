@@ -5,6 +5,7 @@ import { EngineCtx } from "./BoardField";
 type playerType = "P1" | "P2";
 type playerPointsType = { P1: number, P2: number}
 const switchTurnAnimation = "switch-turn 300ms forwards";
+const finishGameDuration = 1300;
 
 type OwnProps = {
   maxGames: number;
@@ -32,8 +33,7 @@ const GameWidget = ({
     const element = rotationRef.current!;
     element.style.animation = "none";
 
-    if (!EngineInstance?.currentTurn) return;
-    if (!previousMoveRef.current) return;
+    if (!EngineInstance?.currentTurn || !previousMoveRef.current) return;
 
     void(element.offsetWidth);  // reflow
     element.style.animation = switchTurnAnimation;
@@ -52,7 +52,9 @@ const GameWidget = ({
         pointsSum === maxGames || playerPoints[player] + 1 > maxGames / 2
       ) {
         finishGame();
-        previousMoveRef.current = null;
+        setTimeout(() => {
+          previousMoveRef.current = null;
+        }, finishGameDuration);
         return;
       }
 
@@ -60,14 +62,14 @@ const GameWidget = ({
         setPlayerPoints(prev => ({ ...prev, [player]: prev[player] + 1 }));
         EngineInstance.reset();
         EngineInstance.init();
-      }, 1000);
+      }, finishGameDuration);
     }
 
     if (EngineInstance.gameStatus === "draw") {
       setTimeout(() => {
         EngineInstance.reset();
         EngineInstance.init();
-      }, 1000);
+      }, finishGameDuration);
     }
   }, [EngineInstance?.gameStatus]);
 
@@ -108,29 +110,31 @@ const GameWidget = ({
     );
   }
 
-  const currentTurn = useMemo(() => {
-    let turn: JSX.Element;
-
+  const handleTurn = () => {
     // draw
-    if (EngineInstance?.gameStatus === "draw") turn = draw;
+    if (EngineInstance?.gameStatus === "draw") return draw;
 
     // win
     if (EngineInstance?.gameStatus.includes("win")) {
       if (EngineInstance?.currentTurn !== EngineInstance?.secondPlayerSymbol) {
-        turn = firstPlayerTurn(true);
+        return firstPlayerTurn(true);
       } else {
-        turn = secondPlayerTurn(true);
+        return secondPlayerTurn(true);
       }
     }
-
+    
     // turn
     if (EngineInstance?.currentTurn !== EngineInstance?.secondPlayerSymbol) {
-      turn = firstPlayerTurn();
+      return firstPlayerTurn();
     } else {
-      turn = secondPlayerTurn();
+      return secondPlayerTurn();
     }
+  }
 
-    if (isVisible) setTimeout(() => previousMoveRef.current = turn, 300);
+  const currentTurn = useMemo(() => {
+    const turn = handleTurn();
+    
+    if (isVisible) setTimeout(() => previousMoveRef.current = turn, 1);
 
     if (!previousMoveRef.current) return <div>{turn}</div>;
     else return actionConstructor(previousMoveRef.current, turn);

@@ -14,7 +14,7 @@ const Board = () => {
   const [isInterfaceBlocked, setIsInterfaceBlocked] = useState(false);
   const [secondPlayer, setSecondPlayer] = useState<secondPlayerType>("bot");
 
-  const [gamesCount, setGamesCount] = useState(5);
+  const [gamesCount, setGamesCount] = useState(3);
   const [botDifficult, setBotDifficult] = useState<botDifficultsType>("easy");
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Board = () => {
 
   const finishGame = () => setTimeout(() => {
     setIsInterfaceBlocked(false);
-    setTimeout(() => setGameStage("ended"), 250);
+    setTimeout(() => setGameStage("ended"), 300);
   }, 1000);
 
   return (
