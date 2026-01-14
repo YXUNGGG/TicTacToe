@@ -3,7 +3,7 @@ import Board from './components/Board';
 import { CanvasBackgroundManager } from './models/initBackground';
 
 import './App.css'
-import imgUrl from './assets/mountain.png';
+import imgUrl from './assets/mountain-noshadow.png';
 import { getImage } from './utils/utils';
 
 const App = () => {
@@ -11,6 +11,7 @@ const App = () => {
   const canvasParentRef = useRef<HTMLDivElement>(null);
   const mountainImg = getImage(imgUrl);
 
+  // init bg canvas effect
   useEffect(() => {
     const canvas = bgCanvasRef.current;
     const parent = canvasParentRef.current;
@@ -24,6 +25,7 @@ const App = () => {
     if (!context || !parent) return;
     
     const BackgroundManager = new CanvasBackgroundManager(parent, context);
+
     mountainImg.addEventListener("load", () => BackgroundManager.initialise(mountainImg));
     mountainImg.addEventListener("resize", () => BackgroundManager.handleResize(canvas!));
 

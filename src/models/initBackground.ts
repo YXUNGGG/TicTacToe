@@ -1,10 +1,6 @@
 import { createUniqueId, getRandom } from "../utils/utils";
 
-// import imgUrl from '../assets/mountain.png';
-
 let mountainImage: HTMLImageElement;
-// // const mountainWidth = mountainImage.width / 4;    // because 4x scale
-// // const mountainHeight = mountainImage.height / 4;
 let mountainWidth: number;
 let mountainHeight: number;
 
@@ -41,7 +37,14 @@ class Mountain extends Moving {
   public height;
   public isClose;
 
-  constructor({x = 0, y = 0, isClose = true}) {   // в объекте можно производить операции и не соблюдать порядок заполнения
+  private shadowCoordinates = {
+    startX: 0,
+    startY: 0,
+    endX: 0, 
+    endY: 0
+  }
+
+  constructor({x = 0, y = 0, isClose = true}) {
     super(x, y);
 
     this.image = mountainImage;
@@ -52,7 +55,7 @@ class Mountain extends Moving {
     this.height =  mountainHeight;
   }
 
-  renderNext(context: CanvasRenderingContext2D) {
+  renderNext(context: CanvasRenderingContext2D, timer: number) {
     context.beginPath();
     context.save();
 
@@ -65,9 +68,43 @@ class Mountain extends Moving {
     context.drawImage(this.image, this.x, this.y, this.width, this.height);  //pic original size
 
     context.closePath();
-    context.restore()
+    context.restore();
+
+    this.handleShadow(context, timer);
 
     super.setMove();
+  }
+
+  handleShadow(ctx: CanvasRenderingContext2D, timer: number) {
+    if (timer > 250) {
+      this.shadowCoordinates = {
+        startX: this.x + this.width / 2 - 2,
+        startY: this.y + 13,
+        endX: this.x, 
+        endY: this.y + this.height + 25,
+      }
+    } else {
+      this.shadowCoordinates = {
+        startX: this.x + this.width / 2 + 2,
+        startY: this.y + 13,
+        endX: this.x + this.width, 
+        endY: this.y + this.height + 25,
+      }
+    }
+
+    this.drawShadow(ctx, Math.abs(250 - timer) * 0.001);
+  }
+
+  drawShadow(ctx: CanvasRenderingContext2D, shadowIntencity: number) {
+    const { startX, startY, endX, endY } = this.shadowCoordinates;
+
+    ctx.beginPath();
+    ctx.lineWidth = 27;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = `rgba(255, 255, 255, ${shadowIntencity})`;
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+    ctx.stroke();
   }
 }
 
@@ -95,7 +132,14 @@ class WindBreaker extends Moving {
 }
 
 export class CanvasBackgroundManager {
-  public animationId = 0;
+  private animationId = 0;
+  
+  public daytimeTimer = 0;
+  private daytimeAnimationId = 0;
+
+  public isNight = true;                   // informs about timer resetting
+  public isSunSetting = true;
+  public readonly maxDaytimeValue = 500;
 
   public mountainWidth = 0;
   public mountainHeight = 0;
@@ -121,9 +165,11 @@ export class CanvasBackgroundManager {
 
     this.width = this.parent.offsetWidth;
     this.height = this.parent.offsetHeight;
+
+    this.parent.style.setProperty("--night-opacity", "0.700");
   }
 
-  initialise(mountain: HTMLImageElement) {  //insert mountains across the entire width as init
+  initialise(mountain: HTMLImageElement) {  // insert mountains across the entire width as init
     this.screen = [];
 
     mountainImage = mountain;
@@ -131,7 +177,7 @@ export class CanvasBackgroundManager {
     mountainHeight = mountainImage.height;
 
     for (let isFar = 1; isFar > -1; isFar--) {
-      let startX = -(mountainWidth / 2) * isFar;
+      const startX = -(mountainWidth / 2) * isFar;
     
       if (!mountainWidth) return;
       
@@ -149,7 +195,34 @@ export class CanvasBackgroundManager {
       windStartPos += getRandom(100, 240);
     }
 
+    this.startDaytimeTimer();
     this.renderNextFrame();
+  }
+
+  startDaytimeTimer() {
+    this.daytimeAnimationId = setInterval(() => {
+      if (this.daytimeTimer === this.maxDaytimeValue || this.daytimeTimer === 0) {
+        this.isSunSetting = !this.isSunSetting;
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      this.isSunSetting ? this.daytimeTimer-- : this.daytimeTimer++;
+       
+      const opacityStep = 1 / this.maxDaytimeValue;
+      const opacityValue = Number(this.parent.style.getPropertyValue("--night-opacity"));
+
+      if (opacityValue === 1 || opacityValue === 0) {
+        this.isNight = !this.isNight;
+      }
+
+      const updatedOpacity = this.isNight ? opacityValue - opacityStep : opacityValue + opacityStep;
+      this.parent.style.setProperty("--night-opacity", updatedOpacity.toFixed(3).toString());
+    }, 100);
+  }
+
+  stopDaytimeTimer() {
+    if (this.daytimeAnimationId) {
+      clearInterval(this.animationId);
+    }
   }
 
   public handleResize(canvas: HTMLCanvasElement) {
@@ -166,10 +239,12 @@ export class CanvasBackgroundManager {
       console.log("Destroyed 👌");
     }
 
+    this.stopDaytimeTimer();
+
     this.screen = [];
   }
 
-  createMountain({x, isClose}: {x: number, isClose: boolean}) {
+  private createMountain({x, isClose}: {x: number, isClose: boolean}) {
     const {closeMax, closeMin, farMax, farMin} = this.mountainsSpawnConfig;
 
     const y = isClose ? getRandom(closeMin, closeMax) : getRandom(farMin, farMax);
@@ -183,11 +258,11 @@ export class CanvasBackgroundManager {
     );
   }
 
-  deleteDepartedMountain(id: number) {  //ушедшую, департированную
+  private deleteDepartedMountain(id: number) {  //ушедшую, департированную
     this.screen = this.screen.filter(figure => figure.id !== id);
   }  
 
-  handleMountainSlide(mountain: Mountain) {
+  private handleMountainSlide(mountain: Mountain) {
     this.createMountain({
       x: this.width,
       isClose: mountain.isClose
@@ -196,7 +271,7 @@ export class CanvasBackgroundManager {
     this.deleteDepartedMountain(mountain.id);
   }
 
-  createWind(x: number) {
+  private createWind(x: number) {
     this.screen.push(new WindBreaker({
       x: x || this.width,
       y: getRandom(40, this.height - 30),   //small padding on bottom
@@ -215,7 +290,7 @@ export class CanvasBackgroundManager {
     .forEach((figure) =>{
       this.ctx.globalAlpha = 1;
 
-      figure.renderNext(this.ctx);
+      figure.renderNext(this.ctx, this.daytimeTimer);
 
       if (figure.x + figure.width <= 0) {
         if (figure instanceof Mountain) this.handleMountainSlide(figure);

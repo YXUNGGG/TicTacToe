@@ -14,7 +14,7 @@ const Board = () => {
   const [isInterfaceBlocked, setIsInterfaceBlocked] = useState(false);
   const [secondPlayer, setSecondPlayer] = useState<secondPlayerType>("bot");
 
-  const [gamesCount, setGamesCount] = useState(3);
+  const [gamesCount, setGamesCount] = useState(5);
   const [botDifficult, setBotDifficult] = useState<botDifficultsType>("easy");
 
   useEffect(() => {
