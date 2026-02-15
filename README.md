@@ -39,5 +39,5 @@ difficulty of the bot that you choose.
 <img width="1918" height="910" alt="{995B58E8-FEB1-4DB9-81F9-4B2E1921054F}" src="https://github.com/user-attachments/assets/71db02a5-34d8-40fb-a2a3-ac47ae067647" />
 
 ### Special thanks
-- *[jsarseny](https://github.com/jsarseny) for providing an example of the implementation of the game engine in js.*
-- *Me for not blowing it up (💥💥) this and bringing to some kind of state.*
+- *[jsarseny](https://github.com/jsarseny) for providing an example of the game engine implementation.*
+- *Me for not blowing it up (💥💥) and bringing to some kind of state.*
