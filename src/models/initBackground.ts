@@ -76,7 +76,7 @@ class Mountain extends Moving {
   }
 
   handleShadow(ctx: CanvasRenderingContext2D, timer: number) {
-    if (timer > 250) {
+    if (timer < 250) {
       this.shadowCoordinates = {
         startX: this.x + this.width / 2 - 2,
         startY: this.y + 13,
@@ -134,12 +134,11 @@ class WindBreaker extends Moving {
 export class CanvasBackgroundManager {
   private animationId = 0;
   
-  public daytimeTimer = 0;
   private daytimeAnimationId = 0;
-
-  public isNight = true;                   // informs about timer resetting
-  public isSunSetting = true;
   public readonly maxDaytimeValue = 500;
+  public daytimeTimer = Number(localStorage.getItem("daytimeTimer") ?? "499");
+
+  public isNight = localStorage.getItem("isNight") ?? true;                   // informs about timer resetting
 
   public mountainWidth = 0;
   public mountainHeight = 0;
@@ -166,7 +165,14 @@ export class CanvasBackgroundManager {
     this.width = this.parent.offsetWidth;
     this.height = this.parent.offsetHeight;
 
-    this.parent.style.setProperty("--night-opacity", "0.700");
+    console.log("timer", this.daytimeTimer);
+    console.log("night", this.isNight);
+    
+    
+    document.body.style.setProperty(
+      "--night-opacity", 
+      (this.daytimeTimer * 0.001).toString()
+    );
   }
 
   initialise(mountain: HTMLImageElement) {  // insert mountains across the entire width as init
@@ -200,22 +206,23 @@ export class CanvasBackgroundManager {
   }
 
   startDaytimeTimer() {
-    this.daytimeAnimationId = setInterval(() => {
-      if (this.daytimeTimer === this.maxDaytimeValue || this.daytimeTimer === 0) {
-        this.isSunSetting = !this.isSunSetting;
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      this.isSunSetting ? this.daytimeTimer-- : this.daytimeTimer++;
-       
-      const opacityStep = 1 / this.maxDaytimeValue;
-      const opacityValue = Number(this.parent.style.getPropertyValue("--night-opacity"));
-
-      if (opacityValue === 1 || opacityValue === 0) {
+    let updatedOpacity = +document.body.style.getPropertyValue("--night-opacity");;
+    this.daytimeAnimationId = setInterval(() => {      
+      if (this.daytimeTimer === this.maxDaytimeValue || this.daytimeTimer === 0
+      ) {
         this.isNight = !this.isNight;
       }
 
-      const updatedOpacity = this.isNight ? opacityValue - opacityStep : opacityValue + opacityStep;
-      this.parent.style.setProperty("--night-opacity", updatedOpacity.toFixed(3).toString());
+      // const currentOpacity = +document.body.style.getPropertyValue("--night-opacity");
+      if (this.isNight) {
+        this.daytimeTimer--;
+        updatedOpacity = Math.abs(updatedOpacity - 0.0014);
+      } else {
+        this.daytimeTimer++;
+        updatedOpacity =  Math.abs(updatedOpacity + 0.0013);
+      }
+
+      document.body.style.setProperty("--night-opacity", (updatedOpacity).toFixed(3));
     }, 100);
   }
 

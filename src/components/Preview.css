@@ -1,0 +1,26 @@
+.preview-container {
+  top: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #60BCFE;
+  transform: translateY(-100vh);
+  transition: opacity 60ms;
+}
+
+.preview-container::after {
+  content: "";
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: var(--night-opacity);
+  background-color: #3A4798;
+  transition: opacity 60ms;
+}

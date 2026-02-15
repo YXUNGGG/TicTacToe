@@ -1,0 +1,8 @@
+  29.04.2025 22:07:32: Starting composition “Comp 1”.
+
+  Output To: C:\Users\segav\Downloads\Comp 1.mov    29.04.2025 22:07:33: Finished composition “Comp 1”.
+
+
+  Total Time Elapsed: 1 Seconds
+Log closed on 29.04.2025 at 22:07:33
+

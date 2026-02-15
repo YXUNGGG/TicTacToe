@@ -1,5 +1,6 @@
 import { Wins_positins } from "../engine";
 import { symbolType } from "../types/GameContext";
+import { actionsSoundManager } from "./audio";
 
 const Colors = [
   "#66BA66",
@@ -42,9 +43,13 @@ export const renderSymbol = async (
   ctx.lineCap = "round";
 
   if (userTurn === "X") {
+    if (!instantly) actionsSoundManager.play("cross");
+    
     ctx.strokeStyle = color || Colors[0];
     await drawCross(ctx, tile, instantly, isBot);
   } else {
+    if (!instantly) actionsSoundManager.play("circle");
+
     ctx.strokeStyle = color || Colors[1];
     await drawCircle(ctx, tile, instantly, isBot);
   }
@@ -156,8 +161,22 @@ export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) 
     }
   });
   
-  const {tileRect: startRect, cellPadding, offsetX: startOffsetX, offsetY: startOffsetY, centerX: startCenterX, centerY: startCenterY} = getCanvasPosition(startPos);
-  const {tileRect: endRect, offsetX: endOffsetX, offsetY: endOffsetY, centerY: endCenterY, centerX: endCenterX} = getCanvasPosition(endPos);
+  const {
+    cellPadding,
+    tileRect: startRect,
+    offsetX: startOffsetX,
+    offsetY: startOffsetY,
+    centerX: startCenterX,
+    centerY: startCenterY
+  } = getCanvasPosition(startPos);
+
+  const {
+    tileRect: endRect,
+    offsetX: endOffsetX, 
+    offsetY: endOffsetY, 
+    centerX: endCenterX,
+    centerY: endCenterY
+  } = getCanvasPosition(endPos);
 
   let startX, 
     startY, 
@@ -193,5 +212,6 @@ export const drawWinLine = async (ctx: CanvasRenderingContext2D, arr: number[]) 
   ctx.lineWidth = 10;
   ctx.strokeStyle = "#313131";
 
+  actionsSoundManager.play("winLine");
   await drawLine(ctx, startX, startY, endX, endY, false, 0.05);
 }
